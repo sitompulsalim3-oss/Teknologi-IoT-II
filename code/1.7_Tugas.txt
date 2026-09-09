@@ -1,0 +1,33 @@
+const int buttonPin = 4;
+const int ledPin = 5;
+
+int lastButtonState = LOW;
+bool ledState = false;
+
+void setup() {
+  Serial.begin(115200);
+  pinMode(buttonPin, INPUT);
+  pinMode(ledPin, OUTPUT);
+
+  digitalWrite(ledPin, LOW);
+  Serial.println("Sistem Sakelar Toggle Siap. Status Awal LED: OFF");
+}
+
+void loop() {
+  int currentButtonState = digitalRead(buttonPin);
+
+  if (currentButtonState == HIGH && lastButtonState == LOW) {
+    ledState = !ledState;
+    digitalWrite(ledPin, ledState ? HIGH : LOW);
+
+    if (ledState) {
+      Serial.println("Tombol ditekan -> LED ON");
+    } else {
+      Serial.println("Tombol ditekan -> LED OFF");
+    }
+
+    delay(200);
+  }
+
+  lastButtonState = currentButtonState;
+}
