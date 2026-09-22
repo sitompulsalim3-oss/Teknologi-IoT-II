@@ -1,0 +1,61 @@
+#include <DHT.h>
+
+const int ldrPin = 34;
+const int dhtPin = 13;
+const int relayPin = 12;
+const int ledPin = 5;
+
+#define DHTTYPE DHT22
+
+DHT dht(dhtPin, DHTTYPE);
+
+void setup() {
+  Serial.begin(115200);
+  dht.begin();
+
+  pinMode(relayPin, OUTPUT);
+  pinMode(ledPin, OUTPUT);
+
+  // Kondisi awal: Relay dan LED mati
+  digitalWrite(relayPin, HIGH);
+  digitalWrite(ledPin, LOW);
+
+  Serial.println("Smart Warehouse dimulai...");
+}
+
+void loop() {
+  int ldrValue = analogRead(ldrPin);
+  float suhu = dht.readTemperature();
+  float kelembapan = dht.readHumidity();
+
+  if (isnan(suhu) || isnan(kelembapan)) {
+    Serial.println("Gagal membaca sensor DHT22!");
+    delay(2500);
+    return;
+  }
+
+  Serial.print("LDR: ");
+  Serial.print(ldrValue);
+  Serial.print(" | Suhu: ");
+  Serial.print(suhu);
+  Serial.print(" C | Kelembapan: ");
+  Serial.print(kelembapan);
+  Serial.println(" %");
+
+  // Jika terlalu panas ATAU terlalu gelap
+  if (suhu > 34 || ldrValue < 300) {
+    digitalWrite(relayPin, LOW);
+    digitalWrite(ledPin, HIGH);
+
+    Serial.println("Peringatan: Aktuator Aktif!");
+  } else {
+    digitalWrite(relayPin, HIGH);
+    digitalWrite(ledPin, LOW);
+
+    Serial.println("Kondisi Aman");
+  }
+
+  Serial.println("-------------------------");
+
+  delay(2500);
+}
